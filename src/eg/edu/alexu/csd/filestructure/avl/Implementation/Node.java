@@ -10,15 +10,8 @@ public class Node<T extends Comparable<T>> implements INode<T> {
     private Node<T> rightChild;
     private T value;
 
-    public Node(T value) {
-        new Node<T>(0, null, value);
-    }
 
-    public Node(int nodeDepth, T value) {
-        new Node<T>(nodeDepth, null, value);
-    }
-
-    public Node(int nodeDepth, Node<T> parent, T value) {
+    public Node( T value, int nodeDepth, Node<T> parent) {
         this.nodeDepth = nodeDepth;
         this.parent = parent;
         this.value = value;
