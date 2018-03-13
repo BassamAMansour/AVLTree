@@ -7,7 +7,7 @@ public class AVLTree<T extends Comparable<T>> implements IAVLTree<T> {
 
     private int numberOfNodes;
     private int height;
-    private Node<T> parent;
+    private Node<T> root;
 
 
     public AVLTree() {
@@ -22,17 +22,16 @@ public class AVLTree<T extends Comparable<T>> implements IAVLTree<T> {
             return;
         }
 
-        if (getNumberOfNodes() == 0 || getParent() == null) {
-            setParent(new Node<>(key, 0, null));
+        if (getNumberOfNodes() == 0 || getRoot() == null) {
+            setRoot(new Node<>(key, 0, null));
             inserted = true;
         } else {
-            inserted = insertNonParentNode(key);
+            inserted = insertNonParentNode(getRoot(), key);
         }
 
         if (inserted) {
             setNumberOfNodes(getNumberOfNodes() + 1);
-            balanceTree();
-            updateHeight();
+            updateTreeHeight();
         }
     }
 
@@ -44,8 +43,7 @@ public class AVLTree<T extends Comparable<T>> implements IAVLTree<T> {
             //TODO: delete the key after it's found in the tree
 
             setNumberOfNodes(getNumberOfNodes() - 1);
-            balanceTree();
-            updateHeight();
+            updateTreeHeight();
             return true;
         }
         return false;
@@ -66,30 +64,103 @@ public class AVLTree<T extends Comparable<T>> implements IAVLTree<T> {
 
     @Override
     public INode<T> getTree() {
-        return getParent();
-    }
-
-    private boolean insertNonParentNode(T key) {
-        return insertNonParentNode(getParent(), key);
+        return getRoot();
     }
 
     private boolean insertNonParentNode(Node<T> currentNode, T key) {
-        //TODO: implement the insertion for non parent node using recursion
-        return false;
+
+        int compareValue = key.compareTo(currentNode.getValue());
+
+        if (compareValue < 0) {
+
+            if (currentNode.getLeftChild() == null) {
+                insertAsLeftChild(currentNode, key);
+            } else {
+
+                return insertNonParentNode((Node<T>) currentNode.getLeftChild(), key);
+            }
+        } else if (compareValue == 0) {
+            return false;
+        } else {
+            if (currentNode.getRightChild() == null) {
+                insertAsRightChild(currentNode, key);
+            } else {
+                return insertNonParentNode((Node<T>) currentNode.getRightChild(), key);
+            }
+        }
+
+        int maxLeftDepth = getMaxDepth((Node<T>) currentNode.getLeftChild());
+        int maxRightDepth = getMaxDepth((Node<T>) currentNode.getRightChild());
+
+        int depth = maxLeftDepth - maxRightDepth;
+
+        if (Math.abs(depth) > 1) {
+            rotate(getUnbalancedNode(currentNode));
+        }
+
+        return true;
     }
 
-    private void updateHeight() {
+    private void rotate(Node<T> unbalancedNode) {
+
+        //TODO: Akromty
+        //TODO: decide rotate left or right or double rotation
+
+    }
+
+    private void insertAsRightChild(Node<T> currentNode, T key) {
+        Node<T> nodeToInsert = new Node<>(key, currentNode.getNodeDepth() + 1, currentNode);
+        currentNode.setRightChild(nodeToInsert);
+    }
+
+    private void insertAsLeftChild(Node<T> currentNode, T key) {
+        Node<T> nodeToInsert = new Node<>(key, currentNode.getNodeDepth() + 1, currentNode);
+        currentNode.setLeftChild(nodeToInsert);
+    }
+
+    private void updateTreeHeight() {
 
         //TODO: Akromty
         //TODO: Update the tree height
         //Called after an insertion or deletion
+
     }
 
-    private void balanceTree() {
+    private Node<T> getUnbalancedNode(Node<T> parentNode) {
 
         //TODO: Akromty or Bassam
         //TODO: balance the tree by making rotations at the non balanced branches
         //Called after an insertion or deletion
+
+        int maxLeftDepth = getMaxDepth((Node<T>) parentNode.getLeftChild());
+        int maxRightDepth = getMaxDepth((Node<T>) parentNode.getRightChild());
+
+        int depth = maxLeftDepth - maxRightDepth;
+
+        if (depth >= 2) {
+            return getUnbalancedNode((Node<T>) parentNode.getLeftChild());
+        } else if (depth <= -2) {
+            return getUnbalancedNode((Node<T>) parentNode.getRightChild());
+        }
+
+        return parentNode.getParent();
+    }
+
+    private int getMaxDepth(Node<T> parentNode) {
+        int maxLeftDepth;
+        int maxRightDepth;
+
+        if (parentNode.getLeftChild() == null) {
+            maxLeftDepth = parentNode.getNodeDepth();
+        }
+        if (parentNode.getRightChild() == null) {
+            maxRightDepth = parentNode.getNodeDepth();
+        }
+
+        maxLeftDepth = getMaxDepth((Node<T>) parentNode.getLeftChild());
+        maxRightDepth = getMaxDepth((Node<T>) parentNode.getRightChild());
+
+        return Math.max(maxLeftDepth, maxRightDepth);
     }
 
 
@@ -97,20 +168,20 @@ public class AVLTree<T extends Comparable<T>> implements IAVLTree<T> {
         return numberOfNodes;
     }
 
-    public void setNumberOfNodes(int numberOfNodes) {
+    private void setNumberOfNodes(int numberOfNodes) {
         this.numberOfNodes = numberOfNodes;
     }
 
-    public void setHeight(int height) {
+    private void setHeight(int height) {
         this.height = height;
     }
 
-    public Node<T> getParent() {
-        return parent;
+    public Node<T> getRoot() {
+        return root;
     }
 
-    public void setParent(Node<T> parent) {
-        this.parent = parent;
+    public void setRoot(Node<T> root) {
+        this.root = root;
     }
 
 }
