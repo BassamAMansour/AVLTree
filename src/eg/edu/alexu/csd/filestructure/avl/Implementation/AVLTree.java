@@ -51,9 +51,25 @@ public class AVLTree<T extends Comparable<T>> implements IAVLTree<T> {
 
     @Override
     public boolean search(T key) {
-
-        //TODO: Akromty
-        //TODO: search for that key
+        INode currentNode = root;
+        while (currentNode != null){
+            int compareValue = key.compareTo((T) currentNode.getValue());
+            if (compareValue < 0){
+                if (currentNode.getLeftChild() == null){
+                    return false;
+                }
+                currentNode = currentNode.getLeftChild();
+            }
+            else if (compareValue == 0){
+                return true;
+            }
+            else {
+                if (currentNode.getRightChild() == null){
+                    return false;
+                }
+                currentNode = currentNode.getRightChild();
+            }
+        }
         return false;
     }
 
@@ -102,9 +118,27 @@ public class AVLTree<T extends Comparable<T>> implements IAVLTree<T> {
     }
 
     private void rotate(Node<T> unbalancedNode) {
-
+        int maxLeftDepth = getMaxDepth((Node<T>) unbalancedNode.getLeftChild());
+        int maxRightDepth = getMaxDepth((Node<T>) unbalancedNode.getRightChild());
+        if (maxLeftDepth-maxRightDepth > 0){
+            if (unbalancedNode.getLeftChild().getRightChild() != null){
+                rotateLeft((Node<T>) unbalancedNode.getLeftChild());
+            }
+            rotateRight(unbalancedNode);
+        }
         //TODO: Akromty
         //TODO: decide rotate left or right or double rotation
+
+    }
+    private void rotateLeft(Node<T> node){
+        node.getParent().setLeftChild((Node<T>) node.getRightChild());
+        ((Node<T>) node.getRightChild()).setParent(node.getParent());
+        ((Node<T>) node.getRightChild()).setLeftChild(node);
+        node.setParent((Node<T>) node.getRightChild());
+        node.setRightChild(null);
+    }
+
+    private void rotateRight(Node<T> node){
 
     }
 
