@@ -34,17 +34,17 @@ public class AVLTree<T extends Comparable<T>> implements IAVLTree<T> {
             updateTreeHeight();
         }
     }
+
     @Override
     public boolean delete(T key) {
-        INode deleteNode= searchForTheNode(key);
+        INode deleteNode = searchForTheNode(key);
         if (deleteNode != null) {
             Node successorNode = this.successor((Node<T>) deleteNode);
             ((Node<T>) deleteNode).setValue((T) successorNode.getValue());
-            if(successorNode.isARightChild()){
+            if (successorNode.isARightChild()) {
                 successorNode.getParent().setRightChild((Node) successorNode.getRightChild());
                 ((Node) successorNode.getRightChild()).setParent(successorNode.getParent());
-            }
-            else if (successorNode.isALeftChild()){
+            } else if (successorNode.isALeftChild()) {
                 successorNode.getParent().setLeftChild((Node) successorNode.getRightChild());
                 ((Node) successorNode.getRightChild()).setParent(successorNode.getParent());
             }
@@ -60,19 +60,17 @@ public class AVLTree<T extends Comparable<T>> implements IAVLTree<T> {
 
     private Node<T> searchForTheNode(T key) {
         INode currentNode = root;
-        while (currentNode != null){
+        while (currentNode != null) {
             int compareValue = key.compareTo((T) currentNode.getValue());
-            if (compareValue < 0){
-                if (currentNode.getLeftChild() == null){
+            if (compareValue < 0) {
+                if (currentNode.getLeftChild() == null) {
                     return null;
                 }
                 currentNode = currentNode.getLeftChild();
-            }
-            else if (compareValue == 0){
+            } else if (compareValue == 0) {
                 return (Node<T>) currentNode;
-            }
-            else {
-                if (currentNode.getRightChild() == null){
+            } else {
+                if (currentNode.getRightChild() == null) {
                     return null;
                 }
                 currentNode = currentNode.getRightChild();
@@ -83,26 +81,8 @@ public class AVLTree<T extends Comparable<T>> implements IAVLTree<T> {
 
     @Override
     public boolean search(T key) {
-        INode currentNode = root;
-        while (currentNode != null){
-            int compareValue = key.compareTo((T) currentNode.getValue());
-            if (compareValue < 0){
-                if (currentNode.getLeftChild() == null){
-                    return false;
-                }
-                currentNode = currentNode.getLeftChild();
-            }
-            else if (compareValue == 0){
-                return true;
-            }
-            else {
-                if (currentNode.getRightChild() == null){
-                    return false;
-                }
-                currentNode = currentNode.getRightChild();
-            }
-        }
-        return false;
+        INode currentNode = searchForTheNode(key);
+        return currentNode != null;
     }
 
     @Override
@@ -152,41 +132,39 @@ public class AVLTree<T extends Comparable<T>> implements IAVLTree<T> {
     private void rotate(Node<T> unbalancedNode) {
         int maxLeftDepth = getMaxDepth((Node<T>) unbalancedNode.getLeftChild());
         int maxRightDepth = getMaxDepth((Node<T>) unbalancedNode.getRightChild());
-        if (maxLeftDepth-maxRightDepth > 0){
-            if (unbalancedNode.getLeftChild().getRightChild() != null){
+        if (maxLeftDepth - maxRightDepth > 0) {
+            if (unbalancedNode.getLeftChild().getRightChild() != null) {
                 rotateLeft((Node<T>) unbalancedNode.getLeftChild());
             }
             rotateRight(unbalancedNode);
-        }
-        else if(maxLeftDepth-maxRightDepth < 0){
-            if (unbalancedNode.getRightChild().getLeftChild() != null){
+        } else if (maxLeftDepth - maxRightDepth < 0) {
+            if (unbalancedNode.getRightChild().getLeftChild() != null) {
                 rotateRight((Node<T>) unbalancedNode.getLeftChild());
             }
             rotateLeft(unbalancedNode);
         }
     }
-    private void rotateLeft(Node<T> node){
+
+    private void rotateLeft(Node<T> node) {
         Node<T> nodeRightChild = (Node<T>) node.getRightChild();
         nodeRightChild.setParent(node.getParent());
-        if(node.isALeftChild()){
+        if (node.isALeftChild()) {
             node.getParent().setLeftChild(nodeRightChild);
-        }
-        else if(node.isARightChild()){
-            ((Node<T>) node.getParent()).setRightChild(nodeRightChild);
+        } else if (node.isARightChild()) {
+            node.getParent().setRightChild(nodeRightChild);
         }
         nodeRightChild.setLeftChild(node);
         node.setParent(nodeRightChild);
         node.setRightChild(null);
     }
 
-    private void rotateRight(Node<T> node){
+    private void rotateRight(Node<T> node) {
         Node<T> nodeLeftChild = (Node<T>) node.getLeftChild();
         nodeLeftChild.setParent(node.getParent());
-        if(node.isALeftChild()){
-            ((Node<T>) node.getParent()).setLeftChild(nodeLeftChild);
-        }
-        else if(node.isARightChild()){
-            ((Node<T>) node.getParent()).setRightChild(nodeLeftChild);
+        if (node.isALeftChild()) {
+            node.getParent().setLeftChild(nodeLeftChild);
+        } else if (node.isARightChild()) {
+            node.getParent().setRightChild(nodeLeftChild);
         }
         nodeLeftChild.setRightChild(node);
         node.setParent(nodeLeftChild);
@@ -204,11 +182,20 @@ public class AVLTree<T extends Comparable<T>> implements IAVLTree<T> {
     }
 
     private void updateTreeHeight() {
+        updateHeight(getRoot());
+    }
 
-        //TODO: Akromty
-        //TODO: Update the tree height
-        //Called after an insertion or deletion
-
+    private void updateHeight(Node<T> node) {
+        if (node == null) {
+            return;
+        }
+        if (node.getParent() == null) {
+            node.setNodeDepth(0);
+        } else {
+            node.setNodeDepth(node.getParent().getNodeDepth() + 1);
+        }
+        updateHeight((Node<T>) node.getLeftChild());
+        updateHeight((Node<T>) node.getRightChild());
     }
 
     private Node<T> getUnbalancedNode(Node<T> parentNode) {
@@ -248,8 +235,8 @@ public class AVLTree<T extends Comparable<T>> implements IAVLTree<T> {
         return Math.max(maxLeftDepth, maxRightDepth);
     }
 
-    private Node<T> successor(Node<T> node){
-        if (node.getLeftChild() != null){
+    private Node<T> successor(Node<T> node) {
+        if (node.getLeftChild() != null) {
             successor((Node<T>) node.getLeftChild());
         }
         return node;
