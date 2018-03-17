@@ -33,6 +33,20 @@ public class Node<T extends Comparable<T>> implements INode<T> {
         this.parent = parent;
     }
 
+    public boolean isALeftChild(){
+        if(this.getParent()!= null && this.getParent().getLeftChild()==this){
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isARightChild(){
+        if(this.getParent()!= null && this.getParent().getRightChild()==this){
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public INode<T> getLeftChild() {
         return leftChild;
